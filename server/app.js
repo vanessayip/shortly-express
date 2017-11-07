@@ -108,6 +108,63 @@ app.get('/signup', (req, res, next) => {
   res.render('signup');
 });
 
+app.post('/login', (req, res, next) => {
+  var username = req.body.username;
+  var password = req.body.password;
+
+//search if user is in db
+//compare if user info matches db
+//create a session
+//return cookie with session
+//redirect to '/'
+  var user;
+  return models.Users.get({username: username})
+  .tap(userInfo => {
+    user = userInfo;
+    if (user) {
+      console.log('user inside LOGIN: ', user);
+      if (models.Users.compare(password, user.password, user.salt)) {
+        res.redirect('/');
+        // return models.Sessions.create()
+        // .then((sesh) => {
+        //   console.log('sesh: ', sesh);
+        //   console.log('req cookie', req.cookie);
+        //   return models.Sessions.get({userId: user.id})
+        //   .then((session) => {
+        //     console.log('inside ', session);
+        //   });
+        // });
+      } else {
+        console.log('error: you entered wrong password');
+        res.redirect('/login');
+      }
+      // .then((bool) => {
+      //   if (bool) {
+      //     return models.Sessions.create()
+      //     .then(() => {
+      //       models.Sessions.get({id: session.userId});
+      //     });  
+        // } else {
+        //   console.log('error: no user found');
+        //   res.redirect('/login');
+      //  }
+        
+     // });
+    
+    } else {
+      console.log('error: user not found');
+      res.redirect('/login');
+    }
+  })
+  .catch(error => {
+    console.log('error inside post /login: ', error);
+  });
+  
+});
+
+app.get('/login', (req, res, next) => {
+  res.render('login');
+});
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
