@@ -376,7 +376,7 @@ describe('', function() {
     });
 
     describe('Session Parser', function() {
-      it('initializes a new session when there are no cookies on the request', function(done) {
+      xit('initializes a new session when there are no cookies on the request', function(done) {
         var requestWithoutCookies = httpMocks.createRequest();
         var response = httpMocks.createResponse();
 
@@ -400,7 +400,8 @@ describe('', function() {
           done();
         });
       });
-
+      
+      // why do you break 
       xit('assigns a session object to the request if a session already exists', function(done) {
 
         var requestWithoutCookie = httpMocks.createRequest();
@@ -422,7 +423,7 @@ describe('', function() {
         });
       });
 
-      xit('creates a new hash for each new session', function(done) {
+      it('creates a new hash for each new session', function(done) {
         var requestWithoutCookies = httpMocks.createRequest();
         var response = httpMocks.createResponse();
 
@@ -439,7 +440,7 @@ describe('', function() {
         });
       });
 
-      xit('assigns a username and userId property to the session object if the session is assigned to a user', function(done) {
+      it('assigns a username and userId property to the session object if the session is assigned to a user', function(done) {
         var requestWithoutCookie = httpMocks.createRequest();
         var response = httpMocks.createResponse();
         var username = 'BillZito';
@@ -450,14 +451,17 @@ describe('', function() {
 
           createSession(requestWithoutCookie, response, function() {
             var hash = requestWithoutCookie.session.hash;
+            // console.log('whats inside hash', hash);
+            // console.log('BEFORE UPDATING~');
             db.query('UPDATE sessions SET userId = ? WHERE hash = ?', [userId, hash], function(error, result) {
-
+              console.log('RESULT', result);
               var secondResponse = httpMocks.createResponse();
               var requestWithCookies = httpMocks.createRequest();
               requestWithCookies.cookies.shortlyid = hash;
 
               createSession(requestWithCookies, secondResponse, function() {
                 var session = requestWithCookies.session;
+                console.log('COOKIES INSIDE TEST', requestWithCookies.cookies);
                 expect(session).to.be.an('object');
                 expect(session.user.username).to.eq(username);
                 expect(session.userId).to.eq(userId);
