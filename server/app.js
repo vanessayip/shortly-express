@@ -179,6 +179,42 @@ app.post('/login', (req, res, next) => {
 app.get('/login', (req, res, next) => {
   res.render('login');
 });
+
+app.get('/logout', (req, res, next) => {
+  console.log('hello');
+  //res.clearCookie('shortlyid');
+  res.cookie('shortlyid', '');
+  return models.Sessions.delete({hash: req.session.hash})
+  .then((promise) => {
+    console.log('promise after delete: ', promise);
+    
+    res.render('index');
+  })
+  .catch((error) => {
+    console.log('error after delete: ', error);
+  });
+  //res.clearCookie('shortlyid');
+  //   res.clearCookie('shortlyid');
+  //   res.render('index');
+    
+  // })
+  // .catch((error) => {
+  //   console.log('error with deleting hash: ', error);
+  // });
+});
+
+app.post('/logout', (req, res, next) => {
+  console.log('IM INSIDE POST');
+  return models.Sessions.delete({hash: req.session.hash})
+  .then(() => {
+    res.clearCookie('shortlyid');
+    res.render('index');
+    
+  })
+  .catch((error) => {
+    console.log('error with deleting hash: ', error);
+  });
+});
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.

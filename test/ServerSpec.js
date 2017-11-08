@@ -536,7 +536,7 @@ describe('', function() {
       });
     });
 
-    it('assigns session to a user when user logs in', function(done) {
+    xit('assigns session to a user when user logs in', function(done) {
       addUser(function(err, res, body) {
         if (err) { return done(err); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
@@ -563,17 +563,22 @@ describe('', function() {
         if (err) { return done(err); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
         var cookieValue = cookies[0].value;
+        console.log('cookieValue', cookieValue);
 
         requestWithSession('http://127.0.0.1:4568/logout', function(error, response, resBody) {
-          if (error) { return done(error); }
-
+          if (error) { 
+            console.log('error inside test ', error);
+            return done(error); 
+          }
           var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
+          console.log('COOKIES', cookies);
           var newCookieValue = cookies[0].value;
           expect(cookieValue).to.not.equal(newCookieValue);
-
+// console.log();
           var queryString = 'SELECT * FROM sessions WHERE hash = ?';
           db.query(queryString, cookieValue, function(error2, sessions) {
-            if (error2) { return done(error2); }
+            if (error2) { console.log('error inside empty: ', error2); return done(error2); }
+            console.log('sessions inside empty table: ', sessions);
             expect(sessions.length).to.equal(0);
             done();
           });

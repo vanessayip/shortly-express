@@ -20,9 +20,9 @@ module.exports.createSession = (req, res, next) => {
       // res.cookie('shortlyid', {value: req.session.hash});
       res.cookie('shortlyid', req.session.hash);
       
-      // res.cookies = {};
+      res.cookies = {};
       //WHY AN OBJ WITH VALUE PROPERTY?!?!?!
-      // res.cookies['shortlyid'] = {value: req.session.hash};
+      res.cookies['shortlyid'] = {value: req.session.hash};
       //console.log('RES COOKIES BEING SET', res.cookies);
       // console.log('res.cookies: ', res.cookies);
       //check if userId is not null
