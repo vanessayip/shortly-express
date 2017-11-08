@@ -5,6 +5,7 @@ const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
+const cookieParser = require('./middleware/cookieParser.js');
 
 const app = express();
 
@@ -13,12 +14,14 @@ app.set('view engine', 'ejs');
 app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser);
+app.use(Auth.createSession);
 app.use(express.static(path.join(__dirname, '../public')));
 
 
 
 app.get('/', 
-(req, res) => {
+(req, res, next) => {
   res.render('index');
 });
 
@@ -89,9 +92,17 @@ app.post('/signup', (req, res, next) => {
       return;
     } else {
       return models.Users.create({username, password})
-      .then(() => {
-        res.redirect('/');
-        res.status(201).send();
+      .then((userCreated) => {
+        console.log('userCreated', userCreated);
+        console.log('IM IN HERE', req.session);
+        return models.Sessions.update({hash: req.session.hash}, {userId: userCreated.insertId})
+        .then(() => {
+          res.redirect('/');
+          res.status(201).send();
+        })
+        .catch((error) => {
+          console.log('error from update', error);
+        });
       })
       .catch(error => {
         console.log('error inside post after create /signup: ', error);
@@ -124,7 +135,10 @@ app.post('/login', (req, res, next) => {
     if (user) {
       console.log('user inside LOGIN: ', user);
       if (models.Users.compare(password, user.password, user.salt)) {
-        res.redirect('/');
+        models.Sessions.update({hash: req.session.hash}, {userId: user.id})
+        .then (() => {
+          res.redirect('/');
+        });
         // return models.Sessions.create()
         // .then((sesh) => {
         //   console.log('sesh: ', sesh);

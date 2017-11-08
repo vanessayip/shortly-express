@@ -14,12 +14,16 @@ module.exports.createSession = (req, res, next) => {
       return models.Sessions.get({id: promise.insertId});
     }).then((session) => {
       req.session = {};
-      console.log(session);
-      // console.log('session hash', session.hash);
+      console.log('SESSION', session);
       req.session.hash = session.hash;
+      // console.log('res.cookies', res.cookies);
+      // res.cookie('shortlyid', {value: req.session.hash});
+      res.cookie('shortlyid', req.session.hash);
+      
+      // res.cookies = {};
       //WHY AN OBJ WITH VALUE PROPERTY?!?!?!
-      console.log('Has shortlyid been set');
-      res.cookies['shortlyid'] = {value: req.session.hash};
+      // res.cookies['shortlyid'] = {value: req.session.hash};
+      //console.log('RES COOKIES BEING SET', res.cookies);
       // console.log('res.cookies: ', res.cookies);
       //check if userId is not null
       // console.log('session shouldnt be null', session);
@@ -38,24 +42,35 @@ module.exports.createSession = (req, res, next) => {
       
     });
   } else {
-    console.log('INSIDE ELSE');
+    // console.log('INSIDE ELSE');
     //cookie exists
     console.log('REQ COOKIES', req.cookies);
     // req.session = {hash: res.cookies.shortlyid.value};
+    
     req.session = {hash: req.cookies.shortlyid};
     //console.log('REQ SESSION');
     return models.Sessions.get({hash: req.session.hash})
     .then((promise) => {
       
-      console.log('promise inside else', promise);
-      console.log('promise.user inside else', promise.user.username);
-      console.log('req.session', req.session);
-      req.session.user = {};
-      req.session.user.username = promise.user.username;
-      req.session.userId = promise.user.id;
+      // console.log('promise inside else', promise);
+      //console.log('promise.user inside else', promise.user.username);
+      // console.log('req.session', req.session);
+      if (promise.userId) {
+        req.session.user = {};
+        req.session.user.username = promise.user.username;
+        req.session.userId = promise.user.id;
+
+      }
       // return models.Users.get({id: promise.})
       next();  
+    })
+    .catch((err) => {
+    //check cookie's hash for validity
+      //console.log('err: ', err);
+      req.cookies = {};
+      module.exports.createSession(req, res, next);
     });
+    
   }
 };
 
