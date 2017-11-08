@@ -3,6 +3,16 @@ const Promise = require('bluebird');
 const cookieParser = require('./cookieParser.js');
 
 module.exports.createSession = (req, res, next) => {
+  //use Promise.resolve(req.cookies.shortlyid) to promisify the string so that you can start chaining the promises. don't need this, can also do the if else, but since we're already going to use promise, might as well
+  //need to check if there is a hash or not, so need to promisfy the string
+  //only way to do that is to Promise.resolve(string) since the resolve is what gets passed down
+  //if something doesn't work out, can use catch. catch will catch everything above it. ie when to make a session. this will happen when you use throw
+  //if stuff inside catch is handled correctly, thens after catch will run
+  //inside catch, there is a return b/c want to pass the final value of the promise chain to the next then block
+  //most websites create a session when a user (atm unknown. ie not logged in) lands on the site. so session is not associated with a user until the user is logged in
+  //tap is like then, but doesn't expect return value. what got passed into tap will get passed on to the next then block 
+  
+  
   // console.log('cookie header', req.headers.cookie);
   console.log('req.cookie', req.cookies);
   if (Object.keys(req.cookies).length === 0) {

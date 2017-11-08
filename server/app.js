@@ -88,6 +88,12 @@ app.post('/signup', (req, res, next) => {
   return models.Users.get({username: username})
   .tap(user => {
     if (user) {
+      //should throw user so can skip the other steps (and instead of using an if statement), the catch will also catch any errors (not from throw) that 'then' might have
+      //if redirect here, subsequent thens will still be run
+      //.error occurs what's rejected from promise
+      //.catch will catch the exceptions (ie. redirecting of flow) skip steps, funneling from other places. clever way on using promise chains
+      //can have multiple catch blocks in promise chains
+      //if no error block, all the errors will go to catch
       res.redirect('/signup');
       return;
     } else {
@@ -181,7 +187,7 @@ app.get('/login', (req, res, next) => {
 });
 
 app.get('/logout', (req, res, next) => {
-  console.log('hello');
+  // console.log('hello');
   //res.clearCookie('shortlyid');
   res.cookie('shortlyid', '');
   return models.Sessions.delete({hash: req.session.hash})
